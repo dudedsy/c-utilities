@@ -1,3 +1,6 @@
+#ifndef _DE_DUPLICATE_H_
+#define _DE_DUPLICATE_H_
+
 /*
 * deDuplicate.h
 * removes duplicates from an array of uint64_t
@@ -21,4 +24,9 @@
    limitations under the License. 
 */
 
+#include <stdint.h>
+#include <stdlib.h>
+
 uint64_t *deDuplicate(uint64_t *base, size_t nitems, size_t *nout);
+
+#endif /* _DE_DUPLICATE_H_ */

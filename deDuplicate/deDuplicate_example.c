@@ -1,7 +1,13 @@
 /* deDuplicate_example.c
+ *
  * example use of the deDuplicator in deDuplicate.h
+ * first item an positive integer list length
+ * takes a list of newline separated  numbers from the standard in,
+ * Then de-duplicates that list and sends to the standard out
+ *
  * bevans.eng@gmail.com 
  */
+
 /*
    Copyright 2018 Brian G. Evans
  
@@ -18,16 +24,31 @@
    limitations under the License. 
 */
 
+#include <stdio.h>
+#include <stdint.h>
+#include "deDuplicate.h"
+
+
 int main(void) {
-	uint64_t test[] = {11,11,3,6,5,9,5}; 
-    uint64_t *deDuplicated;
-	int nitems = 7; 
+  int nitems;
+	uint64_t *inArr;
+  uint64_t *deDuplicated; 
 	size_t nout;
+
+  scanf("%d", &nitems);
+
+  inArr = malloc(nitems * sizeof(uint64_t));
+
+  for (int i = 0; i < nitems; i++) {
+    scanf("%lu", inArr + i);
+  }
     
-	deDuplicated = deDuplicate(test, nitems, &nout);
-	for (int i = 0; i < nout; i++){
-		printf("%d\n", (int) done[i]);
+	deDuplicated = deDuplicate(inArr, nitems, &nout);
+	
+  for (int i = 0; i < nout; i++){
+		printf("%d\n", (int) deDuplicated[i]);
 	}
 	printf("\n");
-	return 0;
+	
+  return 0;
 }

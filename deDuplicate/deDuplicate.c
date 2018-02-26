@@ -21,9 +21,6 @@
    limitations under the License. 
 */
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
 #include "deDuplicate.h"
 
 typedef struct pair pair;

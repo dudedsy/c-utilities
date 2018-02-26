@@ -19,5 +19,3 @@ If the search number is already in the list, it gives the location of the search
 
 a resizing array of uint64_t
 abstract data type allows automagic resizing arrays ala python right here in c!
-
-

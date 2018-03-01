@@ -17,15 +17,21 @@
    limitations under the License. 
 */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "resizingArrayU64.h"
 
 #define MIN(A, B) (A < B) ? A : B
 #define MAX(A, B) (A < B) ? B : A
 
+static void resize(ResizingArrayU64Ptr_t arrPtr, uint64_t newSize);
+
 struct resizingArrayStruct_t {
 	uint64_t *arr;
 	uint64_t count;
-	uint64_t spaces;
+	uint64_t size;
 };
 
 uint64_t RAU64_valueAt(ResizingArrayU64Ptr_t arrPtr, int64_t index) {
@@ -35,7 +41,7 @@ uint64_t RAU64_valueAt(ResizingArrayU64Ptr_t arrPtr, int64_t index) {
 	return arrPtr->arr[index];
 }
 
-bool RAU64_setValueAt(int64_t index, uint64_t value) {
+bool RAU64_setValueAt(ResizingArrayU64Ptr_t arrPtr, int64_t index, uint64_t value) {
 	if (index < 0) index = arrPtr->count + index; // allows negative indexing ala python
 	if (index < 0 || index >= arrPtr->count) return false;
 
@@ -44,18 +50,27 @@ bool RAU64_setValueAt(int64_t index, uint64_t value) {
 }
 
 void RAU64_append(ResizingArrayU64Ptr_t arrPtr, uint64_t value) {
-	if (arrPtr->count < arrPtr->size) arrPtr->arr[count++] = value;
+	if (arrPtr->count < arrPtr->size) arrPtr->arr[arrPtr->count++] = value;
 	else {
-		resize(arrPtr, 2*arrPtr->size);
+		resize(arrPtr, 2 * arrPtr->size);
 		RAU64_append(arrPtr, value);
 	}
+}
+
+uint64_t RAU64_len(ResizingArrayU64Ptr_t arrPtr) {
+	return arrPtr->count;
+}
+
+uint64_t RAU64_isEmpty(ResizingArrayU64Ptr_t arrPtr) {
+	return arrPtr->count <= 0;
 }
 
 uint64_t RAU64_pop(ResizingArrayU64Ptr_t arrPtr) {
 	if (arrPtr->count < 1) return -1;
 	uint64_t toReturn;
-	toReturn = arrPtr->arr[--(arrPtr->count)];
-	if (arrPtr->count < arrPtr->size / 4) resize(arrPtr, arrPtr->count*2);
+	--(arrPtr->count);
+	toReturn = arrPtr->arr[arrPtr->count];
+	if (arrPtr->count < (arrPtr->size / 4)) resize(arrPtr, arrPtr->size / 2);
 	return toReturn;
 }
 
@@ -68,17 +83,17 @@ void RAU64_extend(ResizingArrayU64Ptr_t base, ResizingArrayU64Ptr_t extension){
 	}
 }
 
-ResizingArrayU64Ptr_t RAU64_init(uint64_t initialCount) {
+ResizingArrayU64Ptr_t RAU64_init(uint64_t initialSize) {
 	// initialize struct
 	ResizingArrayU64Ptr_t toReturn;
-	toReturn = malloc(sizeof resizingArrayStruct_t);
+	toReturn = malloc(sizeof(struct resizingArrayStruct_t));
 	
 	// set values
-	toReturn->count = initialCount;
-	toReturn->size = initialCount;
+	toReturn->count = 0;
+	toReturn->size = initialSize;
 
 	//initialize array
-	toReturn->arr = calloc(initialCount, RA_itemSize(type));
+	toReturn->arr = malloc(initialSize * sizeof (uint64_t));
 
 	return toReturn;
 }
@@ -90,10 +105,6 @@ void RAU64_cleanup(ResizingArrayU64Ptr_t arrPtr) {
 
 // changes the size of the underlying array
 static void resize(ResizingArrayU64Ptr_t arrPtr, uint64_t newSize) {
-	uint64_t *newArr;
-	newArr = calloc(newSize, sizeof(uint64_t));
-	memcpy(newArr, arrPtr->arr, MIN(arrPtr->count, newSize) * sizeof(uint64_t));
-	free(arrPtr->arr);
-	arrPtr->arr = newArr;
+	arrPtr->arr = realloc(arrPtr->arr, newSize * sizeof(uint64_t));
 	arrPtr->size = newSize;
 }

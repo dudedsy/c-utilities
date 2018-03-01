@@ -17,10 +17,19 @@
    limitations under the License. 
 */
 
+#include <stdint.h>
+#include <stdbool.h>
+
 typedef struct resizingArrayStruct_t *ResizingArrayU64Ptr_t;
 
 // initializes an array with a given number of values, initialized to zero
 ResizingArrayU64Ptr_t RAU64_init(uint64_t initialCount);
+
+//returns the number of items in the list.
+uint64_t RAU64_len(ResizingArrayU64Ptr_t arrPtr);
+
+//returns true if the list is empty
+uint64_t RAU64_isEmpty(ResizingArrayU64Ptr_t arrPtr);
 
 // returns the value at index
 // -1 sentinel value for index out of range...
@@ -31,7 +40,7 @@ uint64_t RAU64_valueAt(ResizingArrayU64Ptr_t arrPtr, int64_t index);
 // if the array is that big already
 // otherwise returns false and does nothing
 // negative indexes allowed
-bool RAU64_setValueAt(int64_t index, uint64_t value);
+bool RAU64_setValueAt(ResizingArrayU64Ptr_t arrPtr, int64_t index, uint64_t value);
 
 // append a value to the list
 // goes at the end, increases the count. increases underlying size if necessary

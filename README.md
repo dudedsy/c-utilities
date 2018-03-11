@@ -18,3 +18,18 @@ If the search number is already in the list, it gives the location of the search
 
 A resizing array of uint64_t
 abstract data type allows automagic resizing arrays ala python right here in c!
+
+/shuffler
+pipeline of tools for the conway shuffle.
+
+perm.c depends on permutations.c, permutations.h
+heap's permutations algorithm.
+-b flag uses binary input and output modes
+
+shuffle.c does conway shuffles and counts max steps
+-v flag makes it write all permutations and scores, not just winners.
+
+oneThruN.c prints the numbers 1...n-1 to standard out
+-n flag starts the list with its length as a byte.
+
+

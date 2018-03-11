@@ -30,3 +30,13 @@
 
 # Debug files
 *.dSYM/
+
+shuffler/outbig12\.txt
+
+shuffler/outbig3\.txt
+
+shuffler/outbig4\.txt
+
+shuffler/outbig5\.txt
+
+shuffler/perm

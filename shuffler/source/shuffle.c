@@ -29,17 +29,18 @@
 #include <stdbool.h>
 
 int shuffleCount(uint8_t *a, int n);
-
+uint64_t factorial (uint64_t n);
 
 int main(int argc, char **argv) {
 	bool verbose = false;
 
 	if (argc > 1 && strcmp(argv[1], "-v") == 0) {
 		verbose = true;
+		printf("n,shuffleCount,perm,best\n");
 	}
 	
 	int n = getchar();
-	uint64_t totalperms = factorial(n);
+	uint64_t totalPerms = factorial(n);
 	char a[n+1], bestPerm[n+1];
 	int bestCount = -1;
 	uint64_t permsTried = 1;
@@ -78,9 +79,10 @@ int main(int argc, char **argv) {
 					fprintf(stderr,"%2x ", a[i]);
 					printf("%2x ", a[i]);
 				}
-			putchar('\n');
-			putc('\n', stderr);
-			} else {
+				putchar('\n');
+				putc('\n', stderr);
+			} 
+			else {
 				putchar('*');
 			}
 		}
@@ -88,15 +90,15 @@ int main(int argc, char **argv) {
 			putchar('\n');
 		}
 		if (permsTried++%1000000 == 0) {
-			fprintf(stderr, "%luM / %luM\n", permsTried/1000000);
+			fprintf(stderr, "%luM / %luM\n", permsTried/1000000L, totalPerms/1000000L);
 		}
 	}
 	return 0;
 }
 
-int factorial(int n) {
+uint64_t factorial (uint64_t n) {
 	if (n <= 1) return 1;
-	return factorial(n-1);
+	return factorial(n-1) * n;
 }
 
 int shuffleCount(uint8_t *a, int n) {

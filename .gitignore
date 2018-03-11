@@ -36,6 +36,7 @@
 
 # large data files
 *.csv
+*.pkl
 
 # bin and data directories
 /*/bin

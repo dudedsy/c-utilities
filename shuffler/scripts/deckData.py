@@ -1,5 +1,21 @@
 #deckData.py
 
+# general helper functions for creating and manipulating conway shuffle data
+
+# Copyright 2018 Brian G. Evans
+
+# Licensed under the Apache License, Version 2.0 (the "License"); 
+# you may not use this file except in compliance with the License. 
+# You may obtain a copy of the License at 
+
+#     http://www.apache.org/licenses/LICENSE-2.0 
+
+# Unless required by applicable law or agreed to in writing, software 
+# distributed under the License is distributed on an "AS IS" BASIS, 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and 
+# limitations under the License. 
+
 import os
 import subprocess32 as subprocess
 import pandas as pd
@@ -34,7 +50,7 @@ def findGenData(n, filename, autoClobber = False):
 	if os.access(filename, os.R_OK):
 		print "precalculated dataset available"
 		if autoClobber: 
-			print "clobber mode on, the data will be overwritten."
+			print "clobber mode on, the csv will be overwritten."
 		else:
 			print "using precalculated data"
 			return 0

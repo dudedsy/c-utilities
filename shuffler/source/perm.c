@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 #include "permutations.h"
 
 int main(int argc, char **argv) {
@@ -44,31 +45,33 @@ int main(int argc, char **argv) {
 			return 2;
 	}
 
-    int n;
-    char a[n+1];
+  int n;
+  char *a;
 
+  if (binaryMode) {
+  	n = getchar();
+    a = malloc((n+1) * sizeof(char));
 
-    if (binaryMode) {
-    	n = getchar();
+  	for (int i = 0; i < n; i++){
+  		a[i] = getchar();
+  	}
 
-    	for (int i = 0; i < n; i++){
-    		a[i] = getchar();
-    	}
+  	putchar((unsigned char) n);
+  }
 
-    	putchar((unsigned char) n);
-    }
+  else {
+  	scanf("%d", &n);
+  	a = malloc((n+1) * sizeof(char));
+  	
+    char fstr[16];
+    sprintf(fstr, " %ds", n);
+  	fstr[0] = '%';
+  	scanf(fstr, &a);
 
-    else {
-    	scanf("%d", &n);
-
-    	char fstr[16];
-    	sprintf(fstr, " %ds", n);
-    	fstr[0] = '%';
-    	scanf(fstr, &a);
-
-    	printf("%d", n);
-    	printf("%s \n", a);
+  	printf("%d", n);
+  	printf("%s \n", a);
 	}
 
-    printPerms(a, n, binaryMode);
+  printPerms(a, n, binaryMode);
+  free(a);
 }

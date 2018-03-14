@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
 		printf("n,shuffleCount,perm,best\n");
 	}
 	
+	fprintf(stderr, "reading decksize");
 	int n = getchar();
 	uint64_t totalPerms = factorial(n);
 	char a[n+1], bestPerm[n+1];
@@ -53,7 +54,6 @@ int main(int argc, char **argv) {
 		} else {
 			ungetc(ch, stdin);
 		}
-
 		for(int i = 0; i < n; i++){
 			a[i] = getchar();
 		}
@@ -86,6 +86,7 @@ int main(int argc, char **argv) {
 				putchar('*');
 			}
 		}
+
 		if (verbose) {
 			putchar('\n');
 		}
@@ -93,6 +94,11 @@ int main(int argc, char **argv) {
 			fprintf(stderr, "%luM / %luM\n", permsTried/1000000L, totalPerms/1000000L);
 		}
 	}
+	fprintf(stderr, "best: %d, ", )
+	for (int i = 0; i < n; i++) {
+		fprintf(stderr, "%c", a[i] + 'a' - 1);
+	}
+	fprintf(stderr, "\n");
 	return 0;
 }
 

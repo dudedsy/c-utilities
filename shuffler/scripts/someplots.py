@@ -83,10 +83,10 @@ def allHexBins(n, store, endpoints):
 		plt.subplot(plotRows, plotCols, i)
 		hexBins(i, store, endpoints)
 
-def hexBins(i, store, endpoints, gridsize = 100):
+def hexBins(i, store, endpoints, gridsize = 150):
 	df = store.df[:endpoints[i]]
-	gridy = df.shuffleCount.max()
-	plt.hexbin(df.index.values, df.shuffleCount.values, gridsize = gridsize)
+	gridy = df.shuffleCount.max()/2 + 1
+	plt.hexbin(df.index.values, df.shuffleCount.values, gridsize = (gridsize, gridy), mincnt = 1)
 
 def main():
 	n = dd.userDeckSize()

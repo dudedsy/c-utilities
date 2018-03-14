@@ -20,6 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-int printPerms(char *a, uint8_t n, bool bin);
+void printPerms(char *a, uint8_t n, bool bin, bool reversed);
+void printLexPerms(char *a, uint8_t n, bool bin, bool reversed);
 void swap(char *a, uint8_t i, uint8_t j);
-void output(char *a, uint8_t n, bool bin);
+void output(char *a, uint8_t n, bool bin, bool reversed);
+void reverse(char *a, int start, int stop);

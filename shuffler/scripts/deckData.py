@@ -46,7 +46,7 @@ def userDeckSize():
 			print "number must be between 1 and {} (inclusive)".format(MAXDECKSIZE)
 	return n
 
-def findGenData(n, filename, autoClobber = False):
+def findGenData(n, filename, autoClobber = False, options = 'v'):
 	if os.access(filename, os.R_OK):
 		print "precalculated dataset available"
 		if autoClobber: 
@@ -59,7 +59,16 @@ def findGenData(n, filename, autoClobber = False):
 		return -1
 
 	print "writing datafile to {}\n (this may take some time, especially for n > 10)".format(filename)
-	command = "../bin/oneThruN {} -n | ../bin/perm -b | ../bin/shuffle -v".format(n)
+	command = ''
+	if options == 'v':
+		command = "../bin/oneThruN {} -n | ../bin/perm -b | ../bin/shuffle -v".format(n)
+	elif options == 'vs':
+		command = "../bin/oneThruN {} -n | ../bin/perm -bs | ../bin/shuffle -v".format(n)
+	elif options == 'vr':
+		command = "../bin/oneThruN {} -n | ../bin/perm -br | ../bin/shuffle -v".format(n)
+	elif options == 'vsr':
+		command = "../bin/oneThruN {} -n | ../bin/perm -bsr | ../bin/shuffle -v".format(n)
+	else : raise ValueError("bad options: {}".format(options))
 	print command
 	try:
 		ofile = open(filename, 'w')
@@ -71,9 +80,18 @@ def findGenData(n, filename, autoClobber = False):
 
 	return retval
 
-def loadHDF5(n, h5filename = ''):
-	if h5filename == '': 
-		h5filename = "../data/out{}.h5".format(n)
+def loadHDF5(n, options = ''): 
+	if options == '':
+		userStr = raw_input("use lexographic sorting? y/N:")
+		if userStr == '' or userStr not in "yesYesYES":
+			options = 'v'
+		else: options = 'vs'
+
+	userStr = raw_input("use reverse mode? y/N:")
+	if userStr != '' and userStr in "yesYesYES":
+		options = options + 'r'
+
+	h5filename = "../data/out{}{}.h5".format(n, options)
 	
 	h5loaded = False
 
@@ -85,11 +103,11 @@ def loadHDF5(n, h5filename = ''):
 
 	if h5loaded == False:
 		store = pd.HDFStore(h5filename)
+		csvfilename = "../data/out{}{}.csv".format(n, options)
 
-		
-		csvfilename = "../data/out{}v.csv".format(n)
 		userStr = raw_input("Force recalculate csv? y/N:")
-		findGenData(n, csvfilename, userStr != '' and userStr in 'yesYesYES')
+		clobber = userStr != '' and userStr in 'yesYesYES'
+		findGenData(n, csvfilename, clobber, options)
 
 		store.put(	'df', 
 					pd.DataFrame(columns=['n', 'shuffleCount', 'perm', 'best']), 
@@ -109,3 +127,4 @@ def loadHDF5(n, h5filename = ''):
 			store.append('df', chunk)
 		h5loaded = True
 	return store
+

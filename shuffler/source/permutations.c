@@ -18,9 +18,15 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 #include "permutations.h"
 
-int printPerms(char *a, uint8_t n, bool bin){
+static int cmpU8(const void *a, const void *b);
+static inline int findk(char * a, int n);
+static inline int findi(char *a, int k, int n);
+
+void printPerms(char *a, uint8_t n, bool bin, bool reversed){
 	uint64_t c[n];
 	uint64_t i = 0;
 
@@ -28,7 +34,7 @@ int printPerms(char *a, uint8_t n, bool bin){
 		c[i] = 0;
 	}
 	
-	output(a, n, bin);
+	output(a, n, bin, reversed);
 	
 	i = 0;
 	while (i < n) {
@@ -42,9 +48,58 @@ int printPerms(char *a, uint8_t n, bool bin){
 		} else {
 			swap(a, c[i], i);
 		}
-		output(a, n, bin);
+		output(a, n, bin, reversed);
 		++c[i];
 		i = 0;
+	}
+}
+
+static int cmpU8(const void *a, const void *b) {
+	return (*(uint8_t*)a - *(uint8_t*)b);
+} 
+
+static inline int findk(char * a, int n) {
+	int k = n - 2;
+	while (k >= 0) {
+		if (a[k] < a[k + 1]) break;
+		--k;
+	}
+	return k;
+}
+
+static inline int findi(char *a, int k, int n) {
+	if (k < 0 || k >= n) return -1;
+	int i = n - 1;
+	while (a[k] >= a[i]) --i;
+	return i;
+} 
+
+void reverse(char *a, int start, int stop) {
+	char* end = a + stop - 1;
+	a += start;
+
+	char t;
+	while (a < end) {
+		t = *a;
+		*a++ = *end;
+		*end-- = t;
+	}
+}
+
+void printLexPerms(char *a, uint8_t n, bool bin, bool reversed) {
+	char acp[n];
+	memcpy(acp, a, n);
+	qsort(acp, n, sizeof(uint8_t), cmpU8);
+
+	output(a, n, bin, reversed);
+
+	int k = findk(a, n);
+	while (k >= 0) {
+		int i = findi(a, k, n);
+		swap(a, i, k);
+		reverse(a, k + 1, n);
+		output(a, n, bin, reversed);
+		k = findk(a, n);
 	}
 }
 
@@ -54,16 +109,33 @@ void swap(char *a, uint8_t i, uint8_t j){
 	a[j] = temp;
 }
 
-void output(char *a, uint8_t n, bool bin) {
+void output(char *a, uint8_t n, bool bin, bool reversed) {
+
+
 	if (bin) {
-		for(int i = 0; i < n; i++){
-			putchar(a[i]);
+		if (reversed) {
+			for(int i = n-1; i >= 0; i--){
+				putchar(a[i]);
+			}
+		}
+		else {
+			for(int i = 0; i < n; i++){
+				putchar(a[i]);
+			}
 		}
 	} else {
-		for (int i = 0; i < n; i++) {
-			printf("%c",a[i]);
-			if (i < n-1) putchar(',');
+		if (reversed) {
+			for (int i = n-1; i >= 0; i--){
+				printf("%c",a[i]);
+				if (i > 0) putchar(',');
+			}
 		}
-		printf("%s", "\n");
+		else {
+			for (int i = 0; i < n; i++) {
+				printf("%c",a[i]);
+				if (i < n-1) putchar(',');
+			}
+		}
+		putchar('\n');
 	}
 }

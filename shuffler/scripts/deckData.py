@@ -59,16 +59,7 @@ def findGenData(n, filename, autoClobber = False, options = 'v'):
 		return -1
 
 	print "writing datafile to {}\n (this may take some time, especially for n > 10)".format(filename)
-	command = ''
-	if options == 'v':
-		command = "../bin/oneThruN {} -n | ../bin/perm -b | ../bin/shuffle -v".format(n)
-	elif options == 'vs':
-		command = "../bin/oneThruN {} -n | ../bin/perm -bs | ../bin/shuffle -v".format(n)
-	elif options == 'vr':
-		command = "../bin/oneThruN {} -n | ../bin/perm -br | ../bin/shuffle -v".format(n)
-	elif options == 'vsr':
-		command = "../bin/oneThruN {} -n | ../bin/perm -bsr | ../bin/shuffle -v".format(n)
-	else : raise ValueError("bad options: {}".format(options))
+	command = "../bin/oneThruN {} -n | ../bin/perm -b{} | ../bin/shuffle -v".format(n, options)
 	print command
 	try:
 		ofile = open(filename, 'w')
@@ -80,34 +71,27 @@ def findGenData(n, filename, autoClobber = False, options = 'v'):
 
 	return retval
 
-def loadHDF5(n, options = ''): 
+def loadHDF5(n, options = '', clobberh5 = None, clobberCSV = None): 
 	if options == '':
-		userStr = raw_input("use lexographic sorting? y/N:")
-		if userStr == '' or userStr not in "yesYesYES":
-			options = 'v'
-		else: options = 'vs'
+		options = getOptions()
+	filename = "../data/out{}{}".format(n, options)
 
-	userStr = raw_input("use reverse mode? y/N:")
-	if userStr != '' and userStr in "yesYesYES":
-		options = options + 'r'
-
-	h5filename = "../data/out{}{}.h5".format(n, options)
-	
+	h5filename = filename + '.h5'
 	h5loaded = False
-
 	if os.access(h5filename, os.R_OK):
-		userStr = raw_input("use existing hdf5 datastore? Y/n:")
-		if userStr == '' or userStr not in "NonoNO":
+		if clobberh5 == None:
+			clobberh5 = not yesNo("use existing hdf5 datastore?")
+		if clobberh5 == False:
 			store = pd.HDFStore(h5filename)
 			h5loaded = True
 
 	if h5loaded == False:
 		store = pd.HDFStore(h5filename)
-		csvfilename = "../data/out{}{}.csv".format(n, options)
+		csvfilename = filename + '.csv'
 
-		userStr = raw_input("Force recalculate csv? y/N:")
-		clobber = userStr != '' and userStr in 'yesYesYES'
-		findGenData(n, csvfilename, clobber, options)
+		if clobberCSV == None:
+			clobberCSV = noYes("Force recalculate csv?")
+		findGenData(n, csvfilename, clobberCSV, options)
 
 		store.put(	'df', 
 					pd.DataFrame(columns=['n', 'shuffleCount', 'perm', 'best']), 
@@ -128,3 +112,22 @@ def loadHDF5(n, options = ''):
 		h5loaded = True
 	return store
 
+def yesNo(question):
+	question += " Y/n: "
+	userStr = raw_input(question)
+	return userStr == '' or userStr not in "NonoNO"
+
+def noYes(question):
+	question += " y/N: "
+	userStr = raw_input(question)
+	return userStr != '' and userStr in 'yesYesYES'
+
+def getOptions():
+	options = ''
+	if noYes("use lexographic sorting?"):
+		options += 's'
+
+	if noYes("use reverse mode?"):
+		options += 'r'
+
+	return options

@@ -2,8 +2,9 @@
 // counts how many moves in the shuffle described at 
 // https://fivethirtyeight.com/features/how-long-will-you-shuffle-this-damn-deck-of-cards/
 // for permutations in groups of n
+
 // n is the first byte on stdin
-// follwed by bytes with integer representation
+// follwed by n bytes with integer representation
 // of the card numbers 
 
 /*
@@ -30,76 +31,62 @@
 
 int shuffleCount(uint8_t *a, int n);
 uint64_t factorial (uint64_t n);
+bool fileEnd(FILE *f);
+void readPerm(char *a, int n);
+void printPerm(char *a, int n);
+void printVerbose(uint64_t permN, int sc, char *a, int n, bool best);
+void printBasic(uint64_t permN, int sc, char *a, int n);
 
 int main(int argc, char **argv) {
 	bool verbose = false;
-
 	if (argc > 1 && strcmp(argv[1], "-v") == 0) {
 		verbose = true;
 		printf("n,shuffleCount,perm,best\n");
 	}
-	
-	fprintf(stderr, "reading decksize");
 	int n = getchar();
-	uint64_t totalPerms = factorial(n);
+	
+	int64_t totalPerms = factorial(n);
 	char a[n+1], bestPerm[n+1];
+	
 	int bestCount = -1;
 	uint64_t permsTried = 1;
+	uint64_t bestID;
 
-	a[n] = '\0';
-	while (feof(stdin) == 0) {
-		char ch = getchar();
-		if (ch == EOF) {
-			return 0;
-		} else {
-			ungetc(ch, stdin);
-		}
-		for(int i = 0; i < n; i++){
-			a[i] = getchar();
-		}
-
+	while (feof(stdin) == 0 && !fileEnd(stdin)) {
+		readPerm(a, n);
 		int sc = shuffleCount(a, n);
 
-		if (verbose) {
-				printf("%lu,%d,", permsTried, sc);
-				for (int i = 0; i < n; i++) {
-					printf("%c", a[i] + 'a' - 1);
-				}
-				putchar(',');
-		}
+		if (verbose) printVerbose(permsTried, sc, a, n, sc > bestCount);
 
 		if (sc > bestCount) {
 			bestCount = sc;
+			bestID = permsTried;
 			memcpy(bestPerm, a, n+1);
 
 			if(!verbose){
-				fprintf(stderr, "%d moves\n", sc);
-				printf("%d moves, perm# %lu\n", sc, permsTried);
-				for (int i = 0; i < n; i++) {
-					fprintf(stderr,"%2x ", a[i]);
-					printf("%2x ", a[i]);
-				}
-				putchar('\n');
-				putc('\n', stderr);
+				printBasic(permsTried, sc, a, n);
 			} 
-			else {
-				putchar('*');
-			}
 		}
 
-		if (verbose) {
-			putchar('\n');
-		}
 		if (permsTried++%1000000 == 0) {
 			fprintf(stderr, "%luM / %luM\n", permsTried/1000000L, totalPerms/1000000L);
 		}
 	}
-	fprintf(stderr, "best: %d, ", )
-	for (int i = 0; i < n; i++) {
-		fprintf(stderr, "%c", a[i] + 'a' - 1);
+
+	if (!verbose) {
+		printf("---------BEST--------------\n");
+		printBasic(bestID, bestCount, bestPerm, n);
 	}
-	fprintf(stderr, "\n");
+
 	return 0;
+}
+
+bool fileEnd(FILE *f) {
+	char ch = getchar();
+	if (ch == EOF) return true;
+
+	ungetc(ch, stdin);
+	return false;
 }
 
 uint64_t factorial (uint64_t n) {
@@ -125,4 +112,36 @@ int shuffleCount(uint8_t *a, int n) {
 	}
 
 	return count;
+}
+
+void readPerm(char *a, int n) {
+	for(int i = 0; i < n; i++){
+		a[i] = getchar();
+	}
+	a[n] = '\0';
+}
+
+void printPerm(char *a, int n) {
+	for(int i = 0; i < n; i++){
+		putchar(a[i] + 'a' - 1);
+	}
+}
+
+void printVerbose(uint64_t permN, int sc, char *a, int n, bool best) {
+	printf("%lu,%d,", permN, sc);
+	printPerm(a, n);
+	putchar(',');
+	if (best) putchar('*');
+	putchar('\n');
+}
+
+void printBasic(uint64_t permN, int sc, char *a, int n) {
+	fprintf(stderr, "%d moves, perm# %lu\n", sc, permN);
+	printf("%d moves, perm# %lu\n", sc, permN);
+	for (int i = 0; i < n; i++) {
+		fprintf(stderr,"%2x ", a[i]);
+		printf("%2x ", a[i]);
+	}
+	putchar('\n');
+	putc('\n', stderr);
 }

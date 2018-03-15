@@ -1,5 +1,8 @@
 //perm.c
 
+/*
+  read chars from the standard in and write permutations to the standard out
+*/
 
 /*
    Copyright 2018 Brian G. Evans
@@ -32,35 +35,10 @@ int main(int argc, char **argv) {
 		case 0: case 1:
 			break;
     case 2:
-			if (strcmp(argv[1],"-b") == 0){
-				binaryMode = true;
-			} 
-      else if (strcmp(argv[1],"-r") == 0) {
-        reversed = true;
-      } 
-      else if (strcmp(argv[1],"-br") == 0) {
-        binaryMode = true;
-        reversed = true;
-      } 
-      else if (strcmp(argv[1],"-bs") == 0) {
-        binaryMode = true;
-        lexo = true;
-      } 
-      else if (strcmp(argv[1],"-bsr") == 0) {
-        binaryMode = true;
-        lexo = true;
-        reversed = true;
-      } 
-      else if (strcmp(argv[1],"-s") == 0) {
-        lexo = true;
-      } 
-      else if (strcmp(argv[1],"-sr") == 0) {
-        lexo = true;
-        reversed = true;
-      } 
+			binaryMode = in_str(argv[1], 'b');
+      reversed = in_str(argv[1], 'r');
+      lexo = in_str(argv[1], 's');
       break;
-      
-      fprintf(stderr, "unrecognized paramemter %s, ", argv[1]);
 			
 		default:
 			fprintf(stderr, "bad arguments (argc = %d)\n"
@@ -76,39 +54,10 @@ int main(int argc, char **argv) {
 			return 2;
 	}
 
-  fprintf(stderr, "processing modes: binary: %d, lexo: %d\n", binaryMode, lexo);
+  fprintf(stderr, "processing modes: binary: %d, lexo: %d\n, reverse: %d", binaryMode, lexo, reversed);
 
   int n;
-  char *a;
-
-  if (binaryMode) {
-  	n = getchar();
-    a = malloc((n + 1) * sizeof(char));
-
-  	for (int i = 0; i < n; i++){
-  		a[i] = getchar();
-  	}
-
-  	putchar((unsigned char) n);
-  }
-  else {
-  	scanf("%d", &n);
-  	a = malloc((n + 1) * sizeof(char));
-  	
-    char fstr[16];
-    sprintf(fstr, " %ds", n);
-  	fstr[0] = '%';
-  	scanf(fstr, a);
-
-  	printf("%d", n);
-  	printf("%s \n", a);
-	}
-
-  if (lexo) {
-    printLexPerms(a, n, binaryMode, reversed);
-  }
-  else {
-    printPerms(a, n, binaryMode, reversed);
-  }
+  char *a = readBase(binaryMode, &n);
+  printPerms(a, n, binaryMode, reversed, lexo);
   free(a);
 }

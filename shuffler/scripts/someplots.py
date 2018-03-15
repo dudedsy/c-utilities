@@ -37,76 +37,76 @@ def computeLayout(n):
 		if plotRows * plotCols < n: plotRows += 1
 	return plotRows, plotCols
 
-def scatterAllDecks(n, store, endpoints):
+def scatterAllDecks(n, stores):
 	## scatter plot of all results
 	plotRows, plotCols = computeLayout(n)
 	for i in range(1, n + 1):
-		df = store.df[:endpoints[i]]
 		plt.subplot(plotRows, plotCols, i)
-		plt.plot(df.index.values, df.shuffleCount.values, 'b,')
+		scatterDeck(stores[i])
 
-def histAllDecks(n, store, endpoints):
+def scatterDeck(store, style = 'b,'):
+	plt.plot(store.df.index.values, store.df.shuffleCount.values, 'b,')
+
+def histAllDecks(n, stores):
 	## scatter plot of all results
 	plotRows, plotCols = computeLayout(n)
 	for i in range(1, n + 1):
 		plt.subplot(plotRows, plotCols, i)	
-		histDeck(i, store, endpoints)
+		histDeck(stores[i])
 
-def histDeck(i, store, endpoints):
-	df = store.df[:endpoints[i]]
-	maxSC = df.shuffleCount.max()	
-	df.shuffleCount.plot(kind='hist', bins = maxSC+1)
+def histDeck(store):
+	maxSC = store.df.shuffleCount.max()	
+	store.df.shuffleCount.plot(kind='hist', bins = maxSC+1)
 
-def maxBins(i, store, endpoints, bins=100):
-	totalPoints = endpoints[i]
+def maxBins(store, bins=100):
+	totalPoints = len(store.df.index)
 	pointsPerBin = totalPoints / bins + 1
 
 	maxdexes = []
 	maxes = []
 
-	for chunk in store.select('df', chunksize = pointsPerBin, columns = ['shuffleCount'], stop = totalPoints):
+	for chunk in store.select('df', chunksize = pointsPerBin, columns = ['shuffleCount']):
 		maxdex = chunk.shuffleCount.idxmax()
 		maxdexes.append(maxdex)
 		maxes.append(chunk.shuffleCount[maxdex])
 
 	plt.plot(maxdexes, maxes, 'r.-')
 
-def allMaxBins(n, store, endpoints, bins=100):
+def allMaxBins(n, stores, bins=100):
 	plotRows, plotCols = computeLayout(n)
 	for i in range(1, n+1):
 		plt.subplot(plotRows,plotCols, i)
-		maxBins(i, store, endpoints, bins)
+		maxBins(stores[i], bins)
 
-def allHexBins(n, store, endpoints):
+def allHexBins(n, stores):
 	plotRows, plotCols = computeLayout(n)
 	for i in range(1, n+1):
 		plt.subplot(plotRows, plotCols, i)
-		hexBins(i, store, endpoints)
+		hexBins(stores[i])
 
-def hexBins(i, store, endpoints, gridsize = 150):
-	df = store.df[:endpoints[i]]
-	gridy = df.shuffleCount.max()/2 + 1
-	plt.hexbin(df.index.values, df.shuffleCount.values, gridsize = (gridsize, gridy), mincnt = 1)
+def hexBins(store, gridsize = 150):
+	gridy = store.df.shuffleCount.max()/2 + 1
+	plt.hexbin(store.df.index.values, store.df.shuffleCount.values, gridsize = (gridsize, gridy), mincnt = 1)
 
 def main():
 	n = dd.userDeckSize()
 	endpoints = dd.endpoints(n)
-	store = dd.loadHDF5(n)
+	stores = dd.hd5All(n)
 
 	plt.style.use('ggplot')
 
 	if n < 11:
 		plt.figure(1)
-		scatterAllDecks(n, store, endpoints)
+		scatterAllDecks(n, stores)
 
 		plt.figure(2)
-		histAllDecks(n, store, endpoints)
+		histAllDecks(n, stores)
 
 		plt.figure(3)
-		allHexBins(n, store, endpoints)
+		allHexBins(n, stores)
 
 	plt.figure(4)
-	allMaxBins(n, store, endpoints)
+	allMaxBins(n, stores)
 
 	plt.show()
 

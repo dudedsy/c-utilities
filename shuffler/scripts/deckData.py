@@ -71,21 +71,21 @@ def findGenData(n, filename, autoClobber = False, options = 'v'):
 
 	return retval
 
-def loadHDF5(n, options = '', clobberh5 = None, clobberCSV = None): 
-	if options == '':
+def loadHDF5(n, options = None, clobberh5 = None, clobberCSV = None): 
+	if options == None:
 		options = getOptions()
-	filename = "../data/out{}{}".format(n, options)
 
+	filename = "../data/out{}{}".format(n, options)
 	h5filename = filename + '.h5'
-	h5loaded = False
+	
+	store = None
 	if os.access(h5filename, os.R_OK):
 		if clobberh5 == None:
 			clobberh5 = not yesNo("use existing hdf5 datastore?")
 		if clobberh5 == False:
 			store = pd.HDFStore(h5filename)
-			h5loaded = True
 
-	if h5loaded == False:
+	if store == None:
 		store = pd.HDFStore(h5filename)
 		csvfilename = filename + '.csv'
 
@@ -111,6 +111,17 @@ def loadHDF5(n, options = '', clobberh5 = None, clobberCSV = None):
 			store.append('df', chunk)
 		h5loaded = True
 	return store
+
+def hd5All(n, options = None, clobberh5 = None, clobberCSV = None):
+	stores = [None] * (n + 1)
+	if options == None: options = getOptions()
+	if clobberCSV == None:
+		clobberCSV = noYes("Force recalculate csv files?")
+	if clobberh5 == None:
+		clobberh5 = noYes("Force recalculate hdf5 files?")
+	for i in range(1, n+1):
+		stores[i] = loadHDF5(i, options, clobberh5, clobberCSV)
+	return stores
 
 def yesNo(question):
 	question += " Y/n: "

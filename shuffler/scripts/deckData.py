@@ -81,9 +81,11 @@ def loadHDF5(n, options = None, clobberh5 = None, clobberCSV = None):
 	store = None
 	if os.access(h5filename, os.R_OK):
 		if clobberh5 == None:
-			clobberh5 = not yesNo("use existing hdf5 datastore?")
+			clobberh5 = yesNo("force recalculate hdf5?")
 		if clobberh5 == False:
 			store = pd.HDFStore(h5filename)
+		else:
+			os.remove(h5filename)
 
 	if store == None:
 		store = pd.HDFStore(h5filename)
